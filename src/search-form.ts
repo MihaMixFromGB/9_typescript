@@ -46,11 +46,19 @@ export function renderSearchFormBlock (arrival?: Date, departure?: Date) {
   )
 }
 
-function getArrivalDay(date: Date): Date {
+function getArrivalDay(date: Date | undefined): Date {
+  if (date == null) {
+    return addDays(new Date(), 1);
+  }
+  
   return isValidDate(date) ? date: addDays(new Date(), 1);
 }
 
-function getDepartureDay(date: Date, arrival: Date): Date {
+function getDepartureDay(date: Date | undefined, arrival: Date): Date {
+  if (date == null) {
+    return addDays(arrival, 2);
+  }
+  
   return isValidDate(date) ? date: addDays(arrival, 2);
 }
 
@@ -70,12 +78,12 @@ function addDays(date: Date, days: number): Date {
   const newDate = new Date(date.toISOString());
   newDate.setDate(newDate.getDate() + days);
 
-  return date;
+  return newDate;
 }
 
 function getDateString(date: Date): string {
   const yyyy = date.getFullYear();
-  const mm = ('0' + date.getMonth()).slice(-2);
+  const mm = ('0' + (date.getMonth() + 1)).slice(-2);
   const dd = ('0' + date.getDate()).slice(-2);
   
   return `${yyyy}-${mm}-${dd}`;

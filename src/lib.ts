@@ -1,6 +1,8 @@
 export function renderBlock (elementId: string, html: string) {
-  const element = document.getElementById(elementId) as HTMLElement;
-  element.innerHTML = html;
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.innerHTML = html;
+  }
 }
 
 interface IMessage {
@@ -13,7 +15,7 @@ interface IAction {
   handler: () => void
 }
 
-export function renderToast (message: IMessage, action?: IAction) {
+export function renderToast (message: IMessage | null, action?: IAction) {
   let messageText = ''
   
   if (message != null) {
