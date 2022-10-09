@@ -9,6 +9,7 @@
       "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended"
   ],
+  "ignorePatterns": ["typescript-homy-api/**/*.ts"],
   "rules": {
       "quotes": ["error", "single"],
       "indent": ["error", 2]
