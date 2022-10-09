@@ -1,5 +1,10 @@
 import { renderBlock } from './lib.js'
 
+import {
+  addSubmitHandlerForSearchForm,
+  addChangeHandlerForDateInput
+} from './search/search-form-handler.js'
+
 export function renderSearchFormBlock (arrival?: Date, departure?: Date) {
   arrival = getArrivalDay(arrival);
   departure = getDepartureDay(departure, arrival);
@@ -16,7 +21,7 @@ export function renderSearchFormBlock (arrival?: Date, departure?: Date) {
           <div>
             <label for="city">Город</label>
             <input id="city" type="text" disabled value="Санкт-Петербург" />
-            <input type="hidden" disabled value="59.9386,30.3141" />
+            <input id="latlng" type="hidden" disabled value="59.9386,30.3141" />
           </div>
           <!--<div class="providers">
             <label><input type="checkbox" name="provider" value="homy" checked /> Homy</label>
@@ -44,6 +49,9 @@ export function renderSearchFormBlock (arrival?: Date, departure?: Date) {
     </form>
     `
   )
+
+  addSubmitHandlerForSearchForm()
+  addChangeHandlerForDateInput()
 }
 
 function getArrivalDay(date: Date | undefined): Date {

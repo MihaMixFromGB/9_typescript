@@ -4,13 +4,12 @@ import { renderUserBlock } from './user.js'
 import {
   // renderToast,
   getUserData,
-  getFavoritesAmount,
-  addSubmitHandlerForSearchForm
 } from './lib.js'
+import { getFavoritesAmount } from './favorite/favorite-handler.js'
 
 window.addEventListener('DOMContentLoaded', () => {
   const userData = getUserData(localStorage.getItem('user'))
-  const favoritesAmount = getFavoritesAmount(localStorage.getItem('favoritesAmount'))
+  const favoritesAmount = getFavoritesAmount()
 
   renderUserBlock(userData.username, userData.avatarUrl, favoritesAmount)
   renderSearchFormBlock()
@@ -19,5 +18,4 @@ window.addEventListener('DOMContentLoaded', () => {
   //   {text: 'Это пример уведомления. Используйте его при необходимости', type: 'success'},
   //   {name: 'Понял', handler: () => {console.log('Уведомление закрыто')}}
   // )
-  addSubmitHandlerForSearchForm()
 })
