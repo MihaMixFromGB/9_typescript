@@ -111,7 +111,7 @@ export function addChangeHandlerForDateInput() {
       resetTimerOfActualDates()
       timerId = setTimeout(() => { 
         createNeedUpdateDatesNotification('Данные поиска устарели! Необходимо обновить данные')
-      }, 5000)
+      }, 5000*60)
     })
   })
 }
