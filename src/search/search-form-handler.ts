@@ -1,12 +1,17 @@
-import { SearchFormData } from './SearchFormData.js';
+import { SearchFormData } from './SearchFormData.js'
 import { SearchHandler } from './SearchHandler.js'
-import { Place } from '../Place.js';
+import { Place, PlaceProvider } from '../Place.js'
 
 import { renderToast } from '../lib.js'
 
-import { setFavoriteStatus } from '../favorite/favorite-handler.js';
+import { setFavoriteStatus } from '../favorite/favorite-handler.js'
 import { renderSearchFormBlock } from '../search-form.js'
-import { renderSearchResultsBlock, renderSearchStubBlock } from '../search-results.js';
+import { renderSearchResultsBlock, renderSearchStubBlock } from '../search-results.js'
+
+import {
+  FlatRentSdk,
+  Flat
+} from '../typescript-flatrent-api/flat-rent-sdk.js'
 
 let SearchFormData: SearchFormData;
 let SearchedPlaces: Record<string, Place>;
@@ -34,12 +39,16 @@ export function addSubmitHandlerForSearchForm() {
   form.onsubmit = () => {
     search(
       {
+        city: getInputValue(form.querySelector<HTMLInputElement>('#city')),
         coordinates: getInputValue(form.querySelector<HTMLInputElement>('#latlng')),
         checkInDate: convertStringToUnixTSDate(getInputValue(form.querySelector<HTMLInputElement>('#check-in-date'))),
         checkOutDate: convertStringToUnixTSDate(getInputValue(form.querySelector<HTMLInputElement>('#check-out-date'))),
-        maxPrice: +getInputValue(form.querySelector<HTMLInputElement>('#max-price'))
+        maxPrice: +getInputValue(form.querySelector<HTMLInputElement>('#max-price')),
+        homy: getCheckBoxValue(form.querySelector<HTMLInputElement>('#homy')),
+        flatRent: getCheckBoxValue(form.querySelector<HTMLInputElement>('#flatRent'))
       },
       (error, data) => {
+        console.log('data: ', data)
         if (error === null && data != null) {
           setFavoriteStatus(data)
           SearchedPlaces = convertArrayToRecord(data)
@@ -64,21 +73,53 @@ function getInputValue(input: HTMLInputElement | null): string {
     return ''
   }
 
-  return input.value;
+  return input.value
 }
 
-function search(data: SearchFormData, handler?: SearchHandler): void {
+function getCheckBoxValue(cb: HTMLInputElement | null): boolean {
+  if (cb === null) {
+    return false
+  }
+
+  return cb.checked
+}
+
+async function search(data: SearchFormData, handler?: SearchHandler): Promise<void> {
+  const allPlaces: Place[] = []
+  
   SearchFormData = data;
   console.log('SearchFormData: ', data);
 
-  if (handler != null) {
-    searchRequest(data)
-      .then((data) => handler(null, data))
-      .catch((error) => handler(error))
+  if (!handler) {
+    return
   }
+
+  if (data.homy) {
+    const places = await searchHomyRequest(data)
+      .then((data) => data)
+      .catch((error) => handler(error))
+    if (places) {
+      setProvider(PlaceProvider.homy, places)
+      allPlaces.push(...places)
+    }
+  }
+
+  if (data.flatRent) {
+    const flats = await searchFlatRentRequest(data)
+      .then((flats) => flats)
+      .catch((error) => handler(error))
+    if (flats) {
+      const days = Math.round((data.checkOutDate - data.checkInDate) / (1000 * 3600 * 24))
+      const places = convertFlatsToPlaces(flats, days)
+      setProvider(PlaceProvider.flatRent, places)
+      allPlaces.push(...places)
+    }
+  }
+
+  handler(null, allPlaces)
 }
 
-async function searchRequest(data: SearchFormData): Promise<Place[]> {
+async function searchHomyRequest(data: SearchFormData): Promise<Place[]> {
   const url = 'http://localhost:3030/places';
 
   return fetch(url + '?' + new URLSearchParams({
@@ -94,6 +135,35 @@ async function searchRequest(data: SearchFormData): Promise<Place[]> {
 
       return res.json();
     })
+}
+
+async function searchFlatRentRequest(data: SearchFormData): Promise<Flat[]> {
+  const flatRentSdk = new FlatRentSdk()
+  const parameters = {
+    city: data.city,
+    checkInDate: new Date(data.checkInDate),
+    checkOutDate: new Date(data.checkOutDate),
+    priceLimit: data.maxPrice
+  }
+
+  return flatRentSdk.search(parameters)
+}
+
+function convertFlatsToPlaces(flats: Flat[], days: number): Place[] {
+  return flats.map<Place>(flat => ({
+    id: flat.id,
+    image: flat.photos[0],
+    name: flat.title,
+    description: flat.details,
+    remoteness: 0,
+    bookedDates: flat.bookedDates,
+    price: Math.round(flat.totalPrice / days),
+    favorite: false
+  }))
+}
+
+function setProvider(provider: PlaceProvider, places: Place[]) {
+  places.forEach(place => place.provider = provider)
 }
 
 function convertArrayToRecord(data: Place[]): Record<string, Place> {

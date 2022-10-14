@@ -54,7 +54,7 @@ export function renderSearchResultsBlock (places: Place[]) {
 function getResultItems(places: Place[]): string {
   return `
     <ul class="results-list">
-      ${places.map(place => getResultItem(place))}
+      ${places.map(place => getResultItem(place)).join('')}
     </ul>
   `
 }

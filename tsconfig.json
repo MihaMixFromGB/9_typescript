@@ -4,9 +4,10 @@
         "target": "es2017",
         "module": "es2015",
         "moduleResolution": "node",
+        "allowJs": true,
         "strict": true
     },
-    "files": [
-        "src/index.ts"
+    "include": [
+        "src/**/*"
     ]
 }

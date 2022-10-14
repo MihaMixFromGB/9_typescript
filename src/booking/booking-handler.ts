@@ -1,7 +1,9 @@
-import { Place } from '../Place.js'
+import { Place, PlaceProvider } from '../Place.js'
 
-import { getSearchFormData } from '../search/search-form-handler.js'
+import { getSearchFormData, getSearchedPlace } from '../search/search-form-handler.js'
 import { renderToast } from '../lib.js'
+
+import { FlatRentSdk } from '../typescript-flatrent-api/flat-rent-sdk.js'
 
 export function addClickHandlerForBookBtn() {
   const buttons = [...document.querySelectorAll<HTMLElement>('[data-book-id]')]
@@ -20,19 +22,36 @@ export function addClickHandlerForBookBtn() {
 
 function book(placeId: string) {
   const { checkInDate, checkOutDate } = getSearchFormData();
+  const { provider } = getSearchedPlace(placeId);
   
-  bookRequest(placeId, checkInDate.toString(), checkOutDate.toString())
-    .then(place => {
-      const textMessage = `${place.name} успешно забронировано!`
-      createNotification(textMessage, 'success')
-    })
-    .catch(e => {
-      const textMessage = `${e.message}`
-      createNotification(textMessage, 'error')
-    })
+  if (provider == null) {
+    return
+  }
+
+  if (provider === PlaceProvider.homy) {
+    bookHomyRequest(placeId, checkInDate.toString(), checkOutDate.toString())
+      .then(place => {
+        const textMessage = `${place.name} успешно забронировано!`
+        createNotification(textMessage, 'success')
+      })
+      .catch(e => {
+        createNotification(e.message, 'error')
+      })
+  }
+  
+  if (provider === PlaceProvider.flatRent) {
+    bookFlatRentRequest(placeId, new Date(checkInDate), new Date(checkOutDate))
+      .then(() => {
+        const textMessage = 'Бронирование успешно завершено!'
+        createNotification(textMessage, 'success')
+      })
+      .catch(e => {
+        createNotification(e.message, 'error')
+      })
+  }
 }
 
-async function bookRequest(placeId: string, checkInDate: string, checkOutDate: string): Promise<Place> {
+async function bookHomyRequest(placeId: string, checkInDate: string, checkOutDate: string): Promise<Place> {
   const url = 'http://localhost:3030/places/' + placeId
   
   return fetch(url + '?' + new URLSearchParams({
@@ -52,6 +71,13 @@ async function bookRequest(placeId: string, checkInDate: string, checkOutDate: s
       return res.json()
     })
 }
+
+async function bookFlatRentRequest(flatId: string, checkInDate: Date, checkOutDate: Date): Promise<number> {
+  const flatRentSdk = new FlatRentSdk()
+
+  return flatRentSdk.book(flatId, checkInDate, checkOutDate)
+}
+
 
 function createNotification(text: string, type: 'success' | 'error') {
   renderToast(
