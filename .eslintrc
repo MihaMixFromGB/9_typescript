@@ -9,7 +9,13 @@
       "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended"
   ],
-  "ignorePatterns": ["typescript-homy-api/**/*.ts"],
+  "env": {
+    "browser": true
+  },
+  "ignorePatterns": [
+    "typescript-homy-api/**/*.ts",
+    "typescript-flatrent-sdk/**/*.*"
+  ],
   "rules": {
       "quotes": ["error", "single"],
       "indent": ["error", 2]

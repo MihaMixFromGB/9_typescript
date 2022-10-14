@@ -1,5 +1,5 @@
 export interface Place {
-  id: number;
+  id: string;
   image: string;
   name: string;
   description: string;
@@ -7,4 +7,10 @@ export interface Place {
   bookedDates: number[];
   price: number;
   favorite: boolean;
+  provider?: PlaceProvider
+}
+
+export enum PlaceProvider {
+  homy = 'homy',
+  flatRent = 'flatRent'
 }

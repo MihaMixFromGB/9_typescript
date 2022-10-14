@@ -1,6 +1,9 @@
 export interface SearchFormData {
-  coordinates: string,
-  checkInDate: number,
-  checkOutDate: number,
+  city: string
+  coordinates: string
+  checkInDate: number
+  checkOutDate: number
   maxPrice: number
+  homy: boolean
+  flatRent: boolean
 }
