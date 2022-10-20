@@ -1,8 +1,9 @@
 import { renderBlock } from './lib.js'
-import { Place } from './Place.js'
+import { Place } from './domain/Place.js'
 
-import { addClickHandlerForFavoriteIcon } from './favorite/favorite-handler.js';
-import { addClickHandlerForBookBtn } from './booking/booking-handler.js';
+import { addClickHandlerForFavoriteIcon } from './handlers/favorites-handler.js';
+import { addClickHandlerForBookBtn } from './handlers/booking-handler.js';
+import { addClickHandlerForResultsFilter } from './handlers/sort-handler.js'
 
 export function renderSearchStubBlock () {
   renderBlock(
@@ -28,7 +29,7 @@ export function renderEmptyOrErrorSearchBlock (reasonMessage: string) {
   )
 }
 
-export function renderSearchResultsBlock (places: Place[]) {
+export function renderSearchResultsBlock (places: Place[], selectedFilterCriteria: string) {
   renderBlock(
     'search-results-block',
     `
@@ -36,10 +37,10 @@ export function renderSearchResultsBlock (places: Place[]) {
         <p>Результаты поиска</p>
         <div class="search-results-filter">
             <span><i class="icon icon-filter"></i> Сортировать:</span>
-            <select>
-                <option selected="">Сначала дешёвые</option>
-                <option selected="">Сначала дорогие</option>
-                <option>Сначала ближе</option>
+            <select id="searchResultsFilter">
+                <option value="lessPrice" selected>Сначала дешёвые</option>
+                <option value="morePrice">Сначала дорогие</option>
+                <option value="lessRemoteness">Сначала ближе</option>
             </select>
         </div>
     </div>
@@ -49,6 +50,9 @@ export function renderSearchResultsBlock (places: Place[]) {
 
   addClickHandlerForFavoriteIcon()
   addClickHandlerForBookBtn()
+  addClickHandlerForResultsFilter()
+
+  setFilterCriteria(selectedFilterCriteria)
 }
 
 function getResultItems(places: Place[]): string {
@@ -83,4 +87,13 @@ function getResultItem(place: Place): string {
       </div>
     </li>
   `
+}
+
+function setFilterCriteria(criteria: string) {
+  const filter = document.querySelector<HTMLSelectElement>('#searchResultsFilter')
+  if (!filter) {
+    return
+  }
+
+  filter.value = criteria
 }

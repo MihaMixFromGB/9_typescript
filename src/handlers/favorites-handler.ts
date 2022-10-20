@@ -1,15 +1,14 @@
-import { Place } from '../Place';
-import { FavoritePlace } from './FavoritePlace';
+import { Place } from '../domain/Place.js'
+import { FavoritePlace } from '../domain/FavoritePlace.js'
 
 import {
   getSearchedPlace, 
-  reRenderSearchResultsBlock
-} from '../search/search-form-handler.js';
-
+  renderSearchResults
+} from './search-form-handler.js'
 import { getUserData } from '../lib.js'
 import { renderUserBlock } from '../user.js'
 
-const LSTORAGE_FAVORITES = 'favorites';
+const LSTORAGE_FAVORITES = 'favorites'
 
 export function addClickHandlerForFavoriteIcon() {
   const favoriteIcons = [...document.querySelectorAll<HTMLElement>('[data-favorite-id]')]
@@ -22,12 +21,23 @@ export function addClickHandlerForFavoriteIcon() {
       }
 
       const place = getSearchedPlace(placeId)
+      if (place == null) {
+        return
+      }
       toggleFavoriteItem(place)
       place.favorite = !place.favorite
 
       setFavoritesAmount();
-      reRenderSearchResultsBlock();
+      renderSearchResults();
     })
+  })
+}
+
+export function setFavoriteStatus(places: Place[]) {
+  const favorites = getFavoriteItems()
+
+  places.forEach(place => {
+    place.favorite = favorites.some(favorite => favorite.id === place.id)
   })
 }
 
@@ -41,14 +51,6 @@ function setFavoritesAmount() {
   const favoritesAmount = getFavoritesAmount();
   
   renderUserBlock(username, avatarUrl, favoritesAmount)
-}
-
-export function setFavoriteStatus(places: Place[]) {
-  const favorites = getFavoriteItems()
-
-  places.forEach(place => {
-    place.favorite = favorites.some(favorite => favorite.id === place.id)
-  })
 }
 
 function toggleFavoriteItem(place: Place) {
@@ -69,29 +71,29 @@ function toggleFavoriteItem(place: Place) {
 }
 
 function getFavoriteItems(): FavoritePlace[] {
-  const jsonStr = localStorage.getItem(LSTORAGE_FAVORITES);
-  const favoriteItems: FavoritePlace[] = [];
+  const jsonStr = localStorage.getItem(LSTORAGE_FAVORITES)
+  const favoriteItems = []
 
   if (typeof jsonStr !== 'string') {
-    return [];
+    return []
   }
 
-  favoriteItems.push(...JSON.parse(jsonStr));
+  favoriteItems.push(...JSON.parse(jsonStr))
 
   favoriteItems.forEach(item => {
     if (!instanceofFavoritePlace(item)) {
-      return [];
+      return []
     }
   });
 
-  return favoriteItems;
+  return favoriteItems
 }
 
 function setFavoriteItems(favoriteItems: FavoritePlace[]) {
-  localStorage.setItem(LSTORAGE_FAVORITES, JSON.stringify(favoriteItems));
+  localStorage.setItem(LSTORAGE_FAVORITES, JSON.stringify(favoriteItems))
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function instanceofFavoritePlace(data: any): data is FavoritePlace {
-  return ('id' in data) && ('name' in data) && ('image' in data);
+  return ('id' in data) && ('name' in data) && ('image' in data)
 }
