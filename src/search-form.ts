@@ -3,7 +3,7 @@ import { renderBlock } from './lib.js'
 import {
   addSubmitHandlerForSearchForm,
   addChangeHandlerForDateInput
-} from './search/search-form-handler.js'
+} from './handlers/search-form-handler.js'
 
 export function renderSearchFormBlock (arrival?: Date, departure?: Date) {
   arrival = getArrivalDay(arrival);
