@@ -64,7 +64,7 @@ function toggleFavoriteItem(place: Place) {
       image: place.image
     })
   } else {
-    favorites = favorites.filter(item => item.id !== existFavorite[0].id)
+    favorites = favorites.filter(item => item.id !== existFavorite[0]?.id)
   }
   
   setFavoriteItems(favorites)
@@ -73,6 +73,7 @@ function toggleFavoriteItem(place: Place) {
 function getFavoriteItems(): FavoritePlace[] {
   const jsonStr = localStorage.getItem(LSTORAGE_FAVORITES)
   const favoriteItems = []
+  let brokenJSON = false
 
   if (typeof jsonStr !== 'string') {
     return []
@@ -82,11 +83,12 @@ function getFavoriteItems(): FavoritePlace[] {
 
   favoriteItems.forEach(item => {
     if (!instanceofFavoritePlace(item)) {
-      return []
+      brokenJSON = true
+      return
     }
   });
 
-  return favoriteItems
+  return (brokenJSON) ? [] : favoriteItems
 }
 
 function setFavoriteItems(favoriteItems: FavoritePlace[]) {
