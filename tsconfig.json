@@ -5,7 +5,13 @@
         "module": "es2015",
         "moduleResolution": "node",
         "allowJs": true,
-        "strict": true
+        "strict": true,
+        "strictBindCallApply": true,
+        "noImplicitThis": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
     },
     "include": [
         "src/**/*"

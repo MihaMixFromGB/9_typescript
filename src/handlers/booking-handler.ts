@@ -22,13 +22,13 @@ export function addClickHandlerForBookBtn() {
   })
 }
 
-function book(placeId: string) {
+function book(placeId: string): void {
   const { checkInDate, checkOutDate } = getSearchFormData();
   const place = getSearchedPlace(placeId);
   
   if (place == null) {
     createNotification('PlaceId is not corrected!', 'error')
-    return null
+    return
   }
   
   const provider = getProvider(place)

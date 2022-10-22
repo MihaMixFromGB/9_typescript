@@ -47,7 +47,7 @@ export class FlatRentProvider implements Provider {
       flat.id,
       flat.title,
       flat.details,
-      flat.photos[0],
+      flat.photos[0] || '',
       0,
       Math.round(flat.totalPrice / days),
       false
